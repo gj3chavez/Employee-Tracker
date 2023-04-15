@@ -1,6 +1,10 @@
 ## Description
-   This app stores and organices data for managment systems. This application uses `Node.js`, `Inquirer`, and `MySQL` to interact with a MySQL database which will allow a devoloper to manipulate data within each table. view, add, update, and delete 
-   Link to demo video: 
+![License](https://img.shields.io/badge/License%20-MIT-orange) ![JavaScript](https://img.shields.io/badge/-JavaScript-yellow)  ![Noje.js](https://img.shields.io/badge/-node.js-brightgreen)  ![Screencastify](https://img.shields.io/badge/-Screencastify-red)  
+
+  
+   This app stores and organices data for managment systems. This application uses `Node.js`, `Inquirer`, and `MySQL` to interact with a MySQL database which will allow a devoloper to manipulate it within each table by adding, updating, and deleting data.
+   
+   Link to demo video: https://drive.google.com/file/d/1Gs2qQay_57MosGR2JEcy7hjdgaqnd2r9/view
 
 
 ## Screenshot
