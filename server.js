@@ -3,16 +3,37 @@ const mysql = require('mysql2');
 const cTable = require('console.table');
 require('dotenv').config();
 
+const logo = require('asciiart-logo');
+
+
 const db = mysql.createConnection(
     {
         host: 'localhost',
         user: 'root',
-        password: process.env.DB_PASS,
-        database: 'employees_db'
+        password: 'root',
+        database: 'employee_db'
     },
-    console.log(`Connected to the employees_db database.`)
+    console.log(`Connected to the employee_db database.`)
 );
-
+db.connect(function(err) {
+    if (err) throw err;
+    console.log(
+        logo({
+            name: 'Employee Tracker',
+            font: 'Speed',
+            lineChars: 10,
+            padding: 2,
+            margin: 3,
+            borderColor: 'grey',
+            logoColor: 'bold-pink',
+            textColor: 'pink',
+        })
+        .render()
+    );
+    console.log('Welcome to the Employee Tracker!');
+    start();
+});
+    
 function start() {
     inquirer.prompt({
         type: 'list',
@@ -33,9 +54,9 @@ function start() {
             'Add department',
             'Remove department',
             'Quit'
-        ]
+        ],
     })
-    .then((answer) => {
+    .then(function(answer){
         switch (answer.start) {
             case 'View all employees':
                 viewAllEmployees();
@@ -77,14 +98,44 @@ function start() {
                 removeDepartment();
                 break;
             case 'Quit':
-                quit();
+                db.end();
+                console.log('Have a wonderful day!');
+                console.log(
+                    logo({
+                        name: 'Goodbye!',   
+                        font: 'Speed',
+                        lineChars: 10,
+                        padding: 2,
+                        margin: 3,
+                        borderColor: 'grey',
+                        logoColor: 'bold-pink',
+                        textColor: 'pink',
+                    })
+                    .render()
+                );
                 break;
         }
     })
-};
+}
 
 function viewAllEmployees() {
     db.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee manager ON manager.id = employee.manager_id;`, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        start();
+    });
+};
+
+function viewAllDepartments() {
+    db.query(`SELECT * FROM department;`, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        start();
+    });
+};
+
+function viewAllRoles() {
+    db.query(`SELECT * FROM role;`, (err, res) => {
         if (err) throw err;
         console.table(res);
         start();
@@ -107,7 +158,12 @@ function viewAllEmployeesByManager() {
     });
 };
 
-function addEmployee() {
+
+async function addEmployee() {
+const [role] = await db.promise().query(`SELECT * FROM role;`);
+
+const [employee] = await db.promise().query(`SELECT * FROM employee;`);
+
     inquirer.prompt([
         {
             type: 'input',
@@ -120,14 +176,20 @@ function addEmployee() {
             message: 'What is the employee\'s last name?'
         },
         {
-            type: 'input',
+            type: 'list',
             name: 'roleId',
-            message: 'What is the employee\'s role ID?'
+            message: 'What is the employee\'s role ID?',
+            choices: role.map((role) => {
+                return {name: role.title, value: role.id}
+            })
         },
         {
-            type: 'input',
+            type: 'list',
             name: 'managerId',
-            message: 'What is the employee\'s manager ID?'
+            message: 'What is the employee\'s manager ID?',
+            choices: employee.map((employee) => {
+                return {name: employee.first_name + " " + employee.last_name, value: employee.id}
+            })
         }
     ])
     .then((answer) => {
@@ -176,6 +238,40 @@ function updateEmployeeRole() {
     });
 };
 
+async function addDepartment() {
+const [department] = await db.promise().query(`SELECT * FROM employee;`);
+    inquirer.prompt({
+        type: 'input',
+        name: 'departmentName',
+        message: 'What is the name of the department you would like to add?'
+    })
+    .then((answer) => {
+        db.query(`INSERT INTO department (name) VALUES ('${answer.departmentName}');`, (err, res) => {
+            if (err) throw err;
+            console.log('Department added.');
+            start();
+        });
+    });
+};
+
+function removeDepartment() {
+    inquirer.prompt({
+        type: 'input',
+        name: 'departmentId',
+        message: 'What is the ID of the department you would like to remove?'
+    })
+    .then((answer) => {
+        db.query(`DELETE FROM department WHERE id = ${answer.departmentId};`, (err, res) => {
+            if (err) throw err;
+            console.log('Department removed.');
+            start();
+        });
+    });
+};
+
+
+            
+
 function updateEmployeeManager() {
     inquirer.prompt([
         {
@@ -207,7 +303,8 @@ function viewAllRoles() {
     });
 };
 
-function addRole() {
+async function addRole() {
+   const [role] = await db.promise().query(`SELECT * FROM employee;`);
     inquirer.prompt([
         {
             type: 'input',
@@ -235,3 +332,29 @@ function addRole() {
 };
 
 function removeRole() {
+    inquirer.prompt({
+        type: 'input',
+        name: 'roleId',
+        message: 'What is the ID of the role you would like to remove?'
+    })
+    .then((answer) => {
+        db.query(`DELETE FROM role WHERE id = ${answer.roleId};`, (err, res) => {
+            if (err) throw err;
+            console.log('Role removed.');
+            start();
+        });
+    });
+};
+
+endApp = () => {
+    console.log('Goodbye!');
+    process.exit();
+}
+
+
+
+
+
+
+
+
