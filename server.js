@@ -178,7 +178,7 @@ const [employee] = await db.promise().query(`SELECT * FROM employee;`);
         {
             type: 'list',
             name: 'roleId',
-            message: 'What is the employee\'s role ID?',
+            message: 'What is the employee\'s role?',
             choices: role.map((role) => {
                 return {name: role.title, value: role.id}
             })
@@ -186,7 +186,7 @@ const [employee] = await db.promise().query(`SELECT * FROM employee;`);
         {
             type: 'list',
             name: 'managerId',
-            message: 'What is the employee\'s manager ID?',
+            message: 'What is the employee\'s manager?',
             choices: employee.map((employee) => {
                 return {name: employee.first_name + " " + employee.last_name, value: employee.id}
             })
